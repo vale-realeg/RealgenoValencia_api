@@ -11,5 +11,5 @@ class Zona extends Model
     protected $table = 'zona';
     protected $primaryKey = 'id_zona';
     public $incrementing = true;
-    public $timestamp = false;
+    public $timestamps = false;
 }

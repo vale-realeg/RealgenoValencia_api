@@ -10,3 +10,6 @@ Route::get('/user', function (Request $request) {
 
 Route::get('/zonas',[ZonaController::class,'obtenerZonas']);
 Route::get('/zona/{idzona}',[ZonaController::class,'obtenerZona']);
+Route::get('/zonaspais/{idpais}',[ZonaController::class,'obtenerZonaPais']);
+Route::post('/nuevazona',[ZonaController::class,'crearZona']);
+

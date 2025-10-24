@@ -111,4 +111,118 @@ class ZonaController extends Controller
 
         return response()->json($respuesta,$estado);
     }
+    public function obtenerZonaPais(int $idpais = 0){
+        
+        $satisfactorio = false;
+        $estado = 0;
+        $mensaje = "";
+        $errores = [];
+        $valores = [];
+
+        if($idpais > 0){
+            $Zona = new Zona();
+            $valores = $Zona->where('id_pais',$idpais)->get();
+
+                //VERIFICACION DE EXISTENCIA DE DATOS//
+            if(!empty($valores)){
+                //Si se encuentran Datos
+                $satisfactorio = true;
+                $estado = 200;
+                $mensaje = "Valores Encontrados";
+                $errores = [
+                    "code" => 200,
+                    "msg" => ""
+                ];
+            }
+            else{
+                //No se encuentran Datos
+                $satisfactorio = false;
+                $estado = 404;
+                $mensaje = "No se Encontraron Valores";
+                $errores = [
+                    "code" => 404,
+                    "msg" => "Datos No Encontrados"
+                ];
+            }
+        }else{
+            //No se ha enviado un valor para el parametro $idzona
+            $satisfactorio = false;
+            $estado = 400;
+            $mensaje = "No se ha enviado el Parametro Obligatorio";
+            $errores = [
+                "code" => 400,
+                "msg" => "El identificador de la Zona esta vacio"
+            ];
+        }
+
+        //Variable de Salida
+        $respuesta = [
+            "success"=> $satisfactorio,
+            "status" => $estado,
+            "msg" => $mensaje,
+            "data" => $valores,
+            "errors"=> $errores,
+            "total" => sizeof($valores)
+        ];
+
+        return response()->json($respuesta,$estado);
+    }
+
+    public function crearZona(Request $request){
+
+        $satisfactorio = false;
+        $estado = 0;
+        $mensaje = "";
+        $errores = [];
+        $valores = [];
+
+        $validacion = $request->validate([
+            "idpais" => "required|integer|gt:0",
+            "nombrezona" => "required|max:50"
+        ]);
+
+        $Zona = new Zona();
+
+        $Zona->id_pais = $request->idpais;
+        
+        $Zona->nombre_zona = $request->nombrezona;
+
+        $insertado = $Zona->save();//Insert a la DB
+
+        if($insertado){
+            $ultimoinsertado = $Zona->id_zona;
+            $datosinsertados = $this->obtenerZona($ultimoinsertado);
+
+              //Si se Guardaron Datos
+              $satisfactorio = true;
+              $estado = 200;
+              $mensaje = "Se guardaron los Datos correctamente";
+              $errores = [
+                  "code" => 200,
+                  "msg" => ""
+              ];
+
+        }else{
+              //No se insetaron los datos
+              $satisfactorio = false;
+              $estado = 500;
+              $mensaje = "Hubo un problema al guardar los datos";
+              $errores = [
+                  "code" => 500,
+                  "msg" => "No se pudo hacer insert a la table Zona"
+              ];
+        }
+
+         //Variable de Salida
+         $respuesta = [
+            "success"=> $satisfactorio,
+            "status" => $estado,
+            "msg" => $mensaje,
+            "data" => $datosinsertados->original["data"][0],
+            "errors"=> $errores,
+            "total" => $datosinsertados->original["total"]
+        ];
+
+        return response()->json($respuesta,$estado);
+    }
 }
